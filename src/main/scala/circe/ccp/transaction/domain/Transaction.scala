@@ -6,10 +6,11 @@ package circe.ccp.transaction.domain
 case class Transaction(
   id: String,
   category: String,
-  from: WalletAddress,
-  to: WalletAddress,
-  amount: CoinAmount,
-  symbol: CoinSymbol,
+  from: String,
+  to: String,
+  amount: Double,
+  symbol: String,
   note: String,
-  txHash: String
+  txHash: String,
+  timestamp: Option[Long] = None
 )

@@ -28,3 +28,16 @@ case class GetTransactionRequest(
   @QueryParam override val size: Int = 10,
   @QueryParam override val sorts: Option[String] = None
 ) extends PagingRequesting
+
+case class AddMonitorAddressRequest(
+  @RouteParam address: String,
+  notifyType: String,
+  receiverInfo: Map[String, String]
+)
+
+case class GetMonitoringAddressRequest(
+  @RouteParam address: String,
+  @QueryParam override val page: Int = 1,
+  @QueryParam override val size: Int = 10,
+  @QueryParam override val sorts: Option[String] = None
+) extends PagingRequesting

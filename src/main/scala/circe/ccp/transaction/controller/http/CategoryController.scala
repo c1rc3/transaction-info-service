@@ -1,6 +1,6 @@
 package circe.ccp.transaction.controller.http
 
-import circe.ccp.transaction.domain.{Response, SuccessCCPResponse}
+import circe.ccp.transaction.domain.{Response, SuccessResponse}
 import com.google.inject.Inject
 import com.google.inject.name.Named
 import com.twitter.finagle.http.Request
@@ -13,7 +13,7 @@ class CategoryController @Inject()(
   @Named("transaction-categories") categories: Array[String]
 ) extends Controller with Response {
   get("/categories") {
-    _: Request => response.ok(SuccessCCPResponse(Some(categories)))
+    _: Request => response.ok(SuccessResponse(Some(categories)))
   }
 
   get("/c") {
