@@ -17,7 +17,7 @@ class CommonExceptionMapper @Inject()(response: ResponseBuilder) extends Excepti
       case s@_ =>
         s.printStackTrace()
         error("[ERROR]CommonExceptionMapper.toResponse", s)
-        response.internalServerError(StandardResponse(code = -1, msg = s.getLocalizedMessage))
+        response.internalServerError(StandardResponse(code = -1, msg = s"${s.getClass.getName}: ${s.getLocalizedMessage}"))
     }
   }
 }
