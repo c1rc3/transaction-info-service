@@ -91,3 +91,26 @@ Response
 }
 ```
 
+#### Add a transaction
+Request
+```
+curl -XPOST /transactions -d'{
+                                 "id": "0x6a99c3a1de4e8404b128a2c8148c4ba7c4e26ecea61a00dcdb5a4b380faf5107",
+                                 "category": "Food",
+                                 "from": "0x087ad24e25a24abf04657112e8eee6e365d698e7",
+                                 "to": "0x6f88c11fdd4fa004e5baf03d9372a9dc7ae6ec97",
+                                 "amount": 1,
+                                 "symbol": "ETC",
+                                 "note": "2 cup of coffee at Shin",
+                                 "tx_hash": "0x6a99c3a1de4e8404b128a2c8148c4ba7c4e26ecea61a00dcdb5a4b380faf5107",
+                                 "timestamp": 1520838395437
+                               }'
+```
+Response
+```json
+{
+    "code": 1,
+    "msg": "OK",
+    "data": true
+}
+```
