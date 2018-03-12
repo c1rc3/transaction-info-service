@@ -11,5 +11,6 @@ case class Transaction(
   amount: CoinAmount,
   symbol: CoinSymbol,
   note: String,
-  txHash: String
+  txHash: String,
+  timestamp: Option[Long] = None
 )

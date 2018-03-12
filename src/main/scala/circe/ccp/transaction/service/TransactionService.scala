@@ -37,7 +37,8 @@ case class FakedTransactionService() extends TransactionService {
     amount = 1.0,
     symbol = "ETC",
     note = "2 cup of coffee at Shin",
-    txHash = "0x6a99c3a1de4e8404b128a2c8148c4ba7c4e26ecea61a00dcdb5a4b380faf5107"
+    txHash = "0x6a99c3a1de4e8404b128a2c8148c4ba7c4e26ecea61a00dcdb5a4b380faf5107",
+    timestamp = Some(1520838364704L)
   )))
 
   override def getTxWithAddress(address: String, category: Option[String], pageable: Pageable, sorts: Array[String]) = Future(
@@ -50,7 +51,8 @@ case class FakedTransactionService() extends TransactionService {
         amount = 1.0,
         symbol = "ETC",
         note = "2 cup of coffee at Shin",
-        txHash = "0x6a99c3a1de4e8404b128a2c8148c4ba7c4e26ecea61a00dcdb5a4b380faf5107"
+        txHash = "0x6a99c3a1de4e8404b128a2c8148c4ba7c4e26ecea61a00dcdb5a4b380faf5107",
+        timestamp = Some(1520838364704L)
       )), pageable, total = 100
     )
   )
