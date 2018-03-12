@@ -40,7 +40,7 @@ case class FakedTransactionService() extends TransactionService {
     txHash = "0x6a99c3a1de4e8404b128a2c8148c4ba7c4e26ecea61a00dcdb5a4b380faf5107"
   )))
 
-  override def getTxWithAddress(address: String, category: Option[String], pageable: Pageable) = Future(
+  override def getTxWithAddress(address: String, category: Option[String], pageable: Pageable, sorts: Array[String]) = Future(
     PageImpl(
       Array(Transaction(
         id = "id",
