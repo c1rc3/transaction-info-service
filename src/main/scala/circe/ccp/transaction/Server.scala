@@ -1,9 +1,9 @@
 package circe.ccp.transaction
 
 
-import circe.ccp.controller.http.PingController
 import circe.ccp.controller.http.exception.CommonExceptionMapper
 import circe.ccp.module.DependencyModule
+import circe.ccp.transaction.controller.http.{CategoryController, PingController, TransactionController}
 import circe.ccp.transaction.util.ZConfig
 import com.twitter.finatra.http.HttpServer
 import com.twitter.finatra.http.filters.CommonFilters
@@ -26,5 +26,7 @@ class Server extends HttpServer {
     router.filter[CommonFilters]
       .exceptionMapper[CommonExceptionMapper]
       .add[PingController]
+      .add[CategoryController]
+      .add[TransactionController]
   }
 }
