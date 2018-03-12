@@ -3,6 +3,7 @@ package circe.ccp.transaction
 
 import circe.ccp.controller.http.exception.CommonExceptionMapper
 import circe.ccp.module.DependencyModule
+import circe.ccp.transaction.controller.http.filter.CORSFilter
 import circe.ccp.transaction.controller.http.{CategoryController, PingController, TransactionController}
 import circe.ccp.transaction.util.ZConfig
 import com.twitter.finatra.http.HttpServer
@@ -23,8 +24,10 @@ class Server extends HttpServer {
   override val modules = Seq(DependencyModule)
 
   override protected def configureHttp(router: HttpRouter): Unit = {
-    router.filter[CommonFilters]
+    router
       .exceptionMapper[CommonExceptionMapper]
+      .filter[CORSFilter](beforeRouting = true)
+      .filter[CommonFilters]
       .add[PingController]
       .add[CategoryController]
       .add[TransactionController]
