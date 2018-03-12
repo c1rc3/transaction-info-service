@@ -31,6 +31,10 @@ trait Page[T] {
   def scrollId: Option[String]
 
   def currentPage: Int
+
+  def from: Int
+
+  def size: Int
 }
 
 case class PageImpl[T](content: Array[T], pageable: Pageable, total: Long, scrollId: Option[String] = None) extends Page[T] {
@@ -40,6 +44,10 @@ case class PageImpl[T](content: Array[T], pageable: Pageable, total: Long, scrol
   override def totalPage: Int = math.ceil(total * 1.0f / pageable.size).toInt
 
   override def currentPage: Int = pageable.page
+
+  override def from = pageable.from
+
+  override def size = pageable.size
 }
 
 case class PageNumberRequest(page: Int, size: Int, sorts: Array[String] = Array.empty) extends Pageable {

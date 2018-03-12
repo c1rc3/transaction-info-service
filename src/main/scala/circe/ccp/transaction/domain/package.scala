@@ -9,4 +9,5 @@ package object domain {
   type CoinAmount = Double
   type CoinPrice = Double
 
+  type OptTransaction = Option[Transaction]
 }
