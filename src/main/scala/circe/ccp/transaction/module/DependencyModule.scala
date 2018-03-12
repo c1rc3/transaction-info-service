@@ -1,5 +1,6 @@
 package circe.ccp.module
 
+import circe.ccp.transaction.service.{FakedTransactionService, TransactionService}
 import circe.ccp.transaction.util.ZConfig
 import com.twitter.inject.TwitterModule
 
@@ -12,6 +13,8 @@ object DependencyModule extends TwitterModule {
     super.configure()
     bind[Array[String]].annotatedWithName("transaction-categories")
       .toInstance(ZConfig.getStringList("transaction.categories").toArray)
+
+    bind[TransactionService].to[FakedTransactionService]
   }
 
 }
