@@ -1,6 +1,7 @@
 package circe.ccp.transaction.domain
 
 import circe.ccp.transaction.domain.CCPResponseFailReason.CCPResponseFailReason
+import com.fasterxml.jackson.annotation.{JsonIgnore, JsonIgnoreProperties}
 import com.twitter.util.Future
 
 /**
@@ -19,7 +20,10 @@ case class SuccessCCPResponse(data: Option[Any] = None) extends CCPResponse {
   override val msg: String = "OK"
 }
 
-case class FailureCCPResponse(reason: CCPResponseFailReason) extends CCPResponse {
+@JsonIgnoreProperties(value = Array("reason"))
+case class FailureCCPResponse(
+  reason: CCPResponseFailReason
+) extends CCPResponse {
   override val code: Int = reason.id
   override val msg: String = reason.toString
   override val data: Option[Any] = None
@@ -28,16 +32,18 @@ case class FailureCCPResponse(reason: CCPResponseFailReason) extends CCPResponse
 object CCPResponseFailReason extends Enumeration {
   type CCPResponseFailReason = Value
 
-  val NotFound = Value(-404, "Not found")
+  val NotFound = Value(-404, "not-found")
 }
 
 trait Response {
 
   implicit class FutureLike(any: Future[Any]) {
 
-    def toCCPSuccessResponse: Future[CCPResponse] = any.map {
-      case Some(data) => SuccessCCPResponse(Option(data))
-      case _ => FailureCCPResponse(CCPResponseFailReason.NotFound)
+    def toCCPSuccessResponse: Future[CCPResponse] = {
+      any.map {
+        case Some(data) => SuccessCCPResponse(Option(data))
+        case _ => FailureCCPResponse(CCPResponseFailReason.NotFound)
+      }
     }
 
     def toCCPFailureResponse(reason: CCPResponseFailReason): Future[FailureCCPResponse] = any.map(_ => FailureCCPResponse(reason))

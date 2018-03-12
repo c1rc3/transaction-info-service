@@ -22,7 +22,7 @@ case class PagingRequest(
 ) extends PagingRequesting
 
 case class GetTransactionRequest(
-  @RouteParam address: WalletAddress,
+  @RouteParam address: String,
   @QueryParam category: Option[String] = None,
   @QueryParam override val page: Int = 1,
   @QueryParam override val size: Int = 10,
