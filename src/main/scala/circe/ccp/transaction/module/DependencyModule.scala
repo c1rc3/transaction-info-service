@@ -1,4 +1,4 @@
-package circe.ccp.module
+package circe.ccp.transaction.module
 
 import circe.ccp.transaction.service.{FakedTransactionService, TransactionService}
 import circe.ccp.transaction.util.ZConfig
