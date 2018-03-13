@@ -10,7 +10,7 @@ class PagingRequesting {
   val size: Int = 10
   val sorts: Option[String] = None
 
-  def getPageable: Pageable = PageNumberRequest(page, if (size > 1000) 1000 else size)
+  def getPageable: Pageable = PageNumberRequest(page, if (size > 1000) 1000 else size, getSorts)
 
   def getSorts: Array[String] = sorts.getOrElse("").split(",").filter(_.nonEmpty)
 }

@@ -26,7 +26,7 @@ class TransactionController @Inject()(txService: TransactionService) extends Con
 
   get("/transactions") {
     req: GetTransactionRequest => {
-      txService.getTxWithAddress(req.address, req.category, req.getPageable, req.getSorts).map(PagingResponse)
+      txService.getTxWithAddress(req.address, req.category, req.getPageable).map(PagingResponse)
     }
   }
 
@@ -40,7 +40,7 @@ class TransactionController @Inject()(txService: TransactionService) extends Con
 
   get("/transactions/monitoring") {
     req: GetMonitoringAddressRequest => {
-      txService.getMonitoringAddress(req.address, req.getPageable, req.getSorts).map(PagingResponse)
+      txService.getMonitoringAddress(req.address, req.getPageable).map(PagingResponse)
     }
   }
 }

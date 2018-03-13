@@ -6,5 +6,9 @@ package circe.ccp.transaction.domain
 case class MonitoringAddressInfo(
   address: String,
   notifyType: String,
-  receiverInfo: Map[String, String]
+  receiver: String,
+  id: Option[String] = None,
+  createdTime: Option[Long] = None,
+  updatedTime: Option[Long] = None,
+  isActive: Option[Boolean] = None
 )

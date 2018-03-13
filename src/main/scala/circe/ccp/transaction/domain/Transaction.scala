@@ -5,12 +5,14 @@ package circe.ccp.transaction.domain
  **/
 case class Transaction(
   id: String,
-  category: String,
+  symbol: String,
+  txHash: String,
+  detail: Array[TransactionDetail],
+  timestamp: Option[Long] = None
+)
+
+case class TransactionDetail(
   from: String,
   to: String,
-  amount: Double,
-  symbol: String,
-  note: String,
-  txHash: String,
-  timestamp: Option[Long] = None
+  amount: Double
 )

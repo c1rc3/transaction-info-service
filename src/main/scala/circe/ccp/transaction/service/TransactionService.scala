@@ -1,6 +1,7 @@
 package circe.ccp.transaction.service
 
 import circe.ccp.transaction.domain._
+import circe.ccp.transaction.repository.{MonitoringAddressRepository, StringKafkaProducer}
 import com.twitter.util.Future
 
 /**
@@ -12,25 +13,27 @@ trait TransactionService {
 
   /**
    * Get a transaction with id
-   *  @return None if not exist
-   * */
+   *
+   * @return None if not exist
+   **/
   def getTxWithId(id: String): Future[Option[Transaction]]
 
   /**
    * Get transactions that sent from/to ${address}
-   *  @param address:
-   *  @param category: filter by category
-   *  @param pageable: paging
-   *  @return Page of Transaction
    *
-   * */
-  def getTxWithAddress(address: String, category: Option[String], pageable: Pageable, sorts: Array[String]): Future[Page[Transaction]]
+   * @param address  :
+   * @param category : filter by category
+   * @param pageable : paging
+   * @return Page of Transaction
+   *
+   **/
+  def getTxWithAddress(address: String, category: Option[String], pageable: Pageable): Future[Page[Transaction]]
 
   def addMonitoringAddress(monitoringAddressInfo: MonitoringAddressInfo): Future[String]
 
   def removeMonitoringAddress(id: String): Future[Boolean]
 
-  def getMonitoringAddress(address: String, pageable: Pageable, sorts: Array[String]): Future[Page[MonitoringAddressInfo]]
+  def getMonitoringAddress(address: String, pageable: Pageable): Future[Page[MonitoringAddressInfo]]
 }
 
 case class FakedTransactionService() extends TransactionService {
@@ -49,7 +52,7 @@ case class FakedTransactionService() extends TransactionService {
     timestamp = Some(1520838364704L)
   )))
 
-  override def getTxWithAddress(address: String, category: Option[String], pageable: Pageable, sorts: Array[String]) = Future(
+  override def getTxWithAddress(address: String, category: Option[String], pageable: Pageable) = Future(
     PageImpl(
       Array(Transaction(
         id = "id",
@@ -69,7 +72,7 @@ case class FakedTransactionService() extends TransactionService {
 
   override def removeMonitoringAddress(id: String) = Future(true)
 
-  override def getMonitoringAddress(address: String, pageable: Pageable, sorts: Array[String]) = Future(
+  override def getMonitoringAddress(address: String, pageable: Pageable) = Future(
     PageImpl(
       Array(MonitoringAddressInfo(
         address = "0x087ad24e25a24abf04657112e8eee6e365d698e7",
@@ -81,4 +84,22 @@ case class FakedTransactionService() extends TransactionService {
       )), pageable, total = 100
     )
   )
+}
+
+case class TransactionServiceImpl(
+  kafkaProducer: StringKafkaProducer,
+  monitoringAddressRepository: MonitoringAddressRepository
+) extends TransactionService {
+
+  override def add(transaction: Transaction) = ???
+
+  override def getTxWithId(id: String) = ???
+
+  override def getTxWithAddress(address: String, category: Option[String], pageable: Pageable) = ???
+
+  override def addMonitoringAddress(info: MonitoringAddressInfo) = monitoringAddressRepository.add(info)
+
+  override def removeMonitoringAddress(id: String) = monitoringAddressRepository.remove(id)
+
+  override def getMonitoringAddress(address: String, pageable: Pageable) = monitoringAddressRepository.search(address, pageable)
 }
