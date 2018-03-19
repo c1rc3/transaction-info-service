@@ -20,7 +20,7 @@ trait MonitoringAddressRepository {
 }
 
 case class ESMonitoringAddressRepository @Inject()(
-  @Named("monitoring-address-es") es: AsyncESClient,
+  @Named("monitoring-address-es") es: ElasticsearchRepository,
   @Named("monitoring-address-type") typeName: String
 ) extends MonitoringAddressRepository with Jsoning {
 

@@ -50,6 +50,12 @@
             </exclusions>
         </dependency>
 
+        <dependency>
+            <groupId>org.nutz</groupId>
+            <artifactId>ssdb4j</artifactId>
+            <version>9.2</version>
+        </dependency>
+
         <!-- Scala -->
         <dependency>
             <groupId>org.scala-lang</groupId>

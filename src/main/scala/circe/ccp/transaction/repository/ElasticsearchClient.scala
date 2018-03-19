@@ -1,10 +1,12 @@
 package circe.ccp.transaction.repository
 
+import java.io.File
 import java.net.InetAddress
 
 import com.twitter.util.{Future, Promise}
 import ESClient._
 import circe.ccp.transaction.domain.Pageable
+import circe.ccp.transaction.util.Jsoning
 import org.elasticsearch.action.admin.indices.mapping.put.PutMappingResponse
 import org.elasticsearch.action.bulk.BulkResponse
 import org.elasticsearch.action.delete.DeleteResponse
@@ -18,11 +20,11 @@ import org.elasticsearch.client.transport.TransportClient
 import org.elasticsearch.common.settings.Settings
 import org.elasticsearch.common.transport.InetSocketTransportAddress
 import org.elasticsearch.common.unit.TimeValue
-import org.elasticsearch.index.query.{QueryBuilder, QueryBuilders}
+import org.elasticsearch.index.query.{BoolQueryBuilder, QueryBuilder, QueryBuilders}
 import org.elasticsearch.search.SearchHit
 import org.elasticsearch.search.sort.{SortBuilder, SortBuilders, SortOrder}
 import org.elasticsearch.threadpool.ThreadPool
-
+import scala.collection.JavaConversions._
 import scala.annotation.tailrec
 
 trait ESClient {
@@ -51,9 +53,72 @@ trait ESClient {
 
 }
 
+trait Elasticsearchable extends ESClient with Jsoning {
+  protected val es: ElasticsearchRepository
+
+  protected def initIndexFromJsonFile(file: String): Unit = {
+    val json = readFile(new File(file))
+    val settings = json.path("settings").asText("")
+    val mappings = json.path("mappings").fields().toSeq.map(f => {
+      (f.getKey, f.getValue.toJsonString)
+    })
+    es.Admin.initIndex(settings)
+    mappings.foreach(f => {
+      es.Admin.updateMapping(f._1, f._2)
+    })
+  }
+
+  implicit class OptionQueryBuilder(queryBuilder: BoolQueryBuilder) {
+    def mustTerm(key: String, value: Option[_]): BoolQueryBuilder = {
+      value match {
+        case Some(v) => queryBuilder.must(QueryBuilders.termQuery(key, v))
+        case _ => ;
+      }
+      queryBuilder
+    }
+
+    def mustTerms(key: String, value: Option[String]): BoolQueryBuilder = {
+      value match {
+        case Some(v) => queryBuilder.must(QueryBuilders.termsQuery(key, v.split(","): _*))
+        case _ => ;
+      }
+      queryBuilder
+    }
+
+    def mustRange(key: String, gte: Option[_] = None, lte: Option[_] = None, gt: Option[_] = None, lt: Option[_] = None) = {
+      if (gte.isDefined || lte.isDefined || gt.isDefined || lt.isDefined) {
+        val range = QueryBuilders.rangeQuery(key)
+        gte match {
+          case Some(g) => range.gte(g)
+          case _ => ;
+        }
+        lte match {
+          case Some(l) => range.lte(l)
+          case _ => ;
+        }
+        gt match {
+          case Some(g) => range.gt(g)
+          case _ => ;
+        }
+        lt match {
+          case Some(l) => range.lt(l)
+          case _ => ;
+        }
+        queryBuilder.must(range)
+      }
+      queryBuilder
+    }
+  }
+
+  implicit def SearchResponse2ArrayObject[A: Manifest](searchResponse: SearchResponse): Array[A] = {
+    searchResponse.getHits.getHits.map(_.getSourceAsString.asJsonObject[A])
+  }
+}
+
+
 object ESClient extends ESClient
 
-case class AsyncESClient(servers: List[String], cluster: String, transportSniff: Boolean, indexName: String) {
+case class ElasticsearchRepository(servers: List[String], cluster: String, transportSniff: Boolean, indexName: String) {
 
   protected val client: TransportClient = {
     val cli = TransportClient.builder().settings(
