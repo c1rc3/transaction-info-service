@@ -2,6 +2,7 @@ package circe.ccp.transaction
 
 
 import circe.ccp.controller.http.exception.CommonExceptionMapper
+import circe.ccp.transaction.consumer.{MonitoringAddressWriter, TransactionWriter}
 import circe.ccp.transaction.controller.http.filter.CORSFilter
 import circe.ccp.transaction.controller.http.{CategoryController, PingController, TransactionController}
 import circe.ccp.transaction.module.DependencyModule
@@ -31,5 +32,12 @@ class Server extends HttpServer {
       .add[PingController]
       .add[CategoryController]
       .add[TransactionController]
+  }
+
+  override def afterPostWarmup(): Unit = {
+    super.afterPostWarmup()
+
+    injector.instance[MonitoringAddressWriter].startConsume()
+    injector.instance[TransactionWriter].startConsume()
   }
 }

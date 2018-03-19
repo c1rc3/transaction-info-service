@@ -1,17 +1,13 @@
 package circe.ccp.transaction.module
 
-import javax.inject.Singleton
-
-import circe.ccp.transaction.repository.ElasticsearchRepository
+import circe.ccp.transaction.repository.{ElasticsearchRepository, StringKafkaProducer}
 import circe.ccp.transaction.util.ZConfig
 import com.google.inject.Provides
-import com.google.inject.name.Named
 import com.twitter.inject.TwitterModule
 import com.typesafe.config.Config
-import org.nutz.ssdb4j.SSDBs
-import org.nutz.ssdb4j.spi.SSDB
 
 import scala.collection.JavaConversions._
+
 /**
  * Created by phg on 3/12/18.
  **/
@@ -23,29 +19,21 @@ object DependencyModule extends TwitterModule {
       .toInstance(ZConfig.getStringList("transaction.categories").toArray)
 
     bind[Config].annotatedWithName("tx-writer-config").toInstance(ZConfig.getConf("transaction.kafka.consumers.writer"))
-    //    bind[TransactionService]
+    bind[Config].annotatedWithName("monitoring-address-writer-config").toInstance(ZConfig.getConf("monitoring.kafka.consumers.writer"))
+
+    bind[ElasticsearchRepository].annotatedWithName("tx-es").toInstance(esWithConfig(ZConfig.getConf("transaction")))
+    bind[ElasticsearchRepository].annotatedWithName("monitoring-address-es").toInstance(esWithConfig(ZConfig.getConf("monitoring")))
+
+    bind[StringKafkaProducer].annotatedWithName("monitoring-producer").toInstance(StringKafkaProducer(ZConfig.getConf("monitoring.kafka.producer")))
   }
 
-  @Provides
-  @Singleton
-  @Named("tx-es")
-  def providesESClient: ElasticsearchRepository = {
-    val config = ZConfig.getConf("transaction")
+  private def esWithConfig(config: Config): ElasticsearchRepository = {
     ElasticsearchRepository(
-      config.getStringList("es.servers").toList,
-      config.getString("es.cluster"),
-      config.getBoolean("es.transport-sniff"),
-      config.getString("es.index-name")
+      config.getStringList("servers").toList,
+      config.getString("cluster"),
+      config.getBoolean("transport-sniff"),
+      config.getString("index-name")
     )
   }
 
-  @Provides
-  @Singleton
-  def providesSSDBClient:SSDB = {
-    val config = ZConfig.getConf("monitor-address.ssdb")
-    SSDBs.pool(
-      config.getString("host"),
-      config.getInt("port"),
-      config.getInt("timeoutInMs"), null)
-  }
 }

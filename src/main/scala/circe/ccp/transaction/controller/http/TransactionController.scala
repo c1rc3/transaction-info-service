@@ -11,27 +11,34 @@ import com.twitter.finatra.http.Controller
  **/
 class TransactionController @Inject()(txService: TransactionService) extends Controller {
 
-  post("/transactions") {
-    transaction: Transaction => txService.add(transaction).map(SuccessResponse)
-  }
-
   get("/transactions/:id") {
     req: Request => {
-      txService.getTxWithId(req.params("id")).map({
-        case Some(tx) => SuccessResponse(Some(tx))
-        case _ => FailureResponse(FailureReason.NotFound)
-      })
+      CoinId.forName(req.params("coin_id")) match {
+        case Some(coinId) => txService.getTxWithId(coinId, req.params("id")).map({
+          case Some(tx) => SuccessResponse(Some(tx))
+          case _ => FailureResponse(FailureReason.NotFound)
+        })
+        case _ => response.ok(FailureResponse(FailureReason.InvalidCoinId))
+      }
     }
   }
 
   get("/transactions") {
     req: GetTransactionRequest => {
-      txService.getTxWithAddress(req.address, req.category, req.getPageable).map(PagingResponse)
+      CoinId.forName(req.coinId) match {
+        case Some(coinId) => txService.getTxWithAddress(coinId, req.address, req.category, req.getPageable).map(PagingResponse)
+        case _ => response.ok(FailureResponse(FailureReason.InvalidCoinId))
+      }
+
     }
   }
 
   post("/transactions/monitoring") {
-    req: MonitoringAddressInfo => txService.addMonitoringAddress(req).map(SuccessResponse)
+    req: AddMonitorAddressRequest =>
+      NotificationType.forName(req.notifyType) match {
+        case Some(notifyType) => txService.addMonitoringAddress(req.address, notifyType, req.receiver).map(SuccessResponse)
+        case _ => response.ok(FailureResponse(FailureReason.InvalidNotifyType))
+      }
   }
 
   delete("/transactions/:address/monitoring") {

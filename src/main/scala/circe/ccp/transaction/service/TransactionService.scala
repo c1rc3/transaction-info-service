@@ -3,7 +3,7 @@ package circe.ccp.transaction.service
 import circe.ccp.transaction.domain.CoinId.CoinId
 import circe.ccp.transaction.domain.NotificationType.NotificationType
 import circe.ccp.transaction.domain._
-import circe.ccp.transaction.repository.{MonitoringAddressRepository, StringKafkaProducer}
+import circe.ccp.transaction.repository.{MonitoringAddressRepository, StringKafkaProducer, TransactionRepository}
 import circe.ccp.transaction.util.{Jsoning, StringUtil}
 import com.google.inject.name.Named
 import com.twitter.util.Future
@@ -11,11 +11,11 @@ import com.twitter.util.Future
 /**
  * Created by phg on 3/12/18.
  **/
-trait TransactionService[A] {
+trait TransactionService {
 
-  def getTxWithId(coinId: CoinId, id: String): Future[Option[A]]
+  def getTxWithId[A](coinId: CoinId, id: String): Future[Option[A]]
 
-  def getTxWithAddress(address: String, category: Option[String], pageable: Pageable): Future[Page[A]]
+  def getTxWithAddress[A](coinId: CoinId, address: String, category: Option[String], pageable: Pageable): Future[Page[A]]
 
   def addMonitoringAddress(address: String, notifyType: NotificationType, receiver: String): Future[String]
 
@@ -24,15 +24,20 @@ trait TransactionService[A] {
   def getMonitoringAddress(address: String, pageable: Pageable): Future[Page[MonitoringAddressInfo]]
 }
 
-case class TransactionServiceImpl[A](
-  kafkaProducer: StringKafkaProducer,
+case class TransactionServiceImpl(
+  @Named("monitoring-producer") kafkaProducer: StringKafkaProducer,
   monitoringAddressRepository: MonitoringAddressRepository,
-  @Named("monitoring-topic") topic: String
-) extends TransactionService[A] with Jsoning {
+  @Named("monitoring-topic") topic: String,
+  transactionRepository: TransactionRepository
+) extends TransactionService with Jsoning {
 
-  override def getTxWithId(coinId: CoinId, id: String) = ???
+  override def getTxWithId[A](coinId: CoinId, id: String) = transactionRepository.getTx(coinId.toString, id).map(_.map(_.asJsonObject[A]))
 
-  override def getTxWithAddress(address: String, category: Option[String], pageable: Pageable) = ???
+  override def getTxWithAddress[A](coinId: CoinId, address: String, category: Option[String], pageable: Pageable) = {
+    transactionRepository.search(coinId.toString, Some(address), Some(address), pageable).map(page => {
+      PageImpl(page.content.map(_.asJsonObject[A]), pageable, page.totalElement)
+    })
+  }
 
   override def addMonitoringAddress(address: String, notifyType: NotificationType, receiver: String) = {
     val currentMillis = System.currentTimeMillis()

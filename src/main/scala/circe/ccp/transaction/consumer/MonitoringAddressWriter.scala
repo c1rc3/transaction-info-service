@@ -10,7 +10,7 @@ import com.typesafe.config.Config
  * Created by phg on 3/19/18.
  **/
 case class MonitoringAddressWriter @Inject()(
-  @Named("monitoring-address-config") config: Config,
+  @Named("monitoring-address-writer-config") config: Config,
   repo: MonitoringAddressRepository
 ) extends MonitoringAddressConsumer(config) {
 

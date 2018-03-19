@@ -24,8 +24,10 @@ import org.elasticsearch.index.query.{BoolQueryBuilder, QueryBuilder, QueryBuild
 import org.elasticsearch.search.SearchHit
 import org.elasticsearch.search.sort.{SortBuilder, SortBuilders, SortOrder}
 import org.elasticsearch.threadpool.ThreadPool
+
 import scala.collection.JavaConversions._
 import scala.annotation.tailrec
+import scala.language.implicitConversions
 
 trait ESClient {
 
@@ -83,6 +85,13 @@ trait Elasticsearchable extends ESClient with Jsoning {
         case _ => ;
       }
       queryBuilder
+    }
+
+    def shouldTerms(key: String, value: Option[String]): BoolQueryBuilder = {
+      value match {
+        case Some(v) => queryBuilder.should(QueryBuilders.termsQuery(key, v.split(","): _*))
+        case _ => ;
+      }
     }
 
     def mustRange(key: String, gte: Option[_] = None, lte: Option[_] = None, gt: Option[_] = None, lt: Option[_] = None) = {

@@ -22,7 +22,8 @@ case class PagingRequest(
 ) extends PagingRequesting
 
 case class GetTransactionRequest(
-  @RouteParam address: String,
+  @QueryParam address: String,
+  @QueryParam coinId: String,
   @QueryParam category: Option[String] = None,
   @QueryParam override val page: Int = 1,
   @QueryParam override val size: Int = 10,
@@ -30,9 +31,9 @@ case class GetTransactionRequest(
 ) extends PagingRequesting
 
 case class AddMonitorAddressRequest(
-  @RouteParam address: String,
+  address: String,
   notifyType: String,
-  receiverInfo: Map[String, String]
+  receiver: String
 )
 
 case class GetMonitoringAddressRequest(
