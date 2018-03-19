@@ -20,8 +20,11 @@ trait MonitoringAddressRepository {
 
 case class ESMonitoringAddressRepository @Inject()(
   @Named("monitoring-address-es") es: ElasticsearchRepository,
-  @Named("monitoring-address-type") typeName: String
-) extends MonitoringAddressRepository with Jsoning {
+  @Named("monitoring-address-type") typeName: String,
+  @Named("monitoring-mapping-file") filePath: String
+) extends MonitoringAddressRepository with Elasticsearchable {
+
+  initIndexFromJsonFile(filePath)
 
   override def upsert(info: MonitoringAddressInfo): Future[String] = {
     es.index(typeName, info.id, info.toJsonString).map(_ => info.id)

@@ -5,6 +5,7 @@ import circe.ccp.transaction.domain.NotificationType.NotificationType
 import circe.ccp.transaction.domain._
 import circe.ccp.transaction.repository.{MonitoringAddressRepository, StringKafkaProducer, TransactionRepository}
 import circe.ccp.transaction.util.{Jsoning, StringUtil}
+import com.google.inject.Inject
 import com.google.inject.name.Named
 import com.twitter.util.Future
 
@@ -13,9 +14,9 @@ import com.twitter.util.Future
  **/
 trait TransactionService {
 
-  def getTxWithId[A](coinId: CoinId, id: String): Future[Option[A]]
+  def getTxWithId[A: Manifest](coinId: CoinId, id: String): Future[Option[A]]
 
-  def getTxWithAddress[A](coinId: CoinId, address: String, category: Option[String], pageable: Pageable): Future[Page[A]]
+  def getTxWithAddress[A: Manifest](coinId: CoinId, address: String, category: Option[String], pageable: Pageable): Future[Page[A]]
 
   def addMonitoringAddress(address: String, notifyType: NotificationType, receiver: String): Future[String]
 
@@ -24,16 +25,16 @@ trait TransactionService {
   def getMonitoringAddress(address: String, pageable: Pageable): Future[Page[MonitoringAddressInfo]]
 }
 
-case class TransactionServiceImpl(
-  @Named("monitoring-producer") kafkaProducer: StringKafkaProducer,
+case class TransactionServiceImpl @Inject()(
   monitoringAddressRepository: MonitoringAddressRepository,
-  @Named("monitoring-topic") topic: String,
+  @Named("monitoring-producer") kafkaProducer: StringKafkaProducer,
+  @Named("monitoring-kafka-topic") topic: String,
   transactionRepository: TransactionRepository
 ) extends TransactionService with Jsoning {
 
-  override def getTxWithId[A](coinId: CoinId, id: String) = transactionRepository.getTx(coinId.toString, id).map(_.map(_.asJsonObject[A]))
+  override def getTxWithId[A: Manifest](coinId: CoinId, id: String) = transactionRepository.getTx(coinId.toString, id).map(_.map(_.asJsonObject[A]))
 
-  override def getTxWithAddress[A](coinId: CoinId, address: String, category: Option[String], pageable: Pageable) = {
+  override def getTxWithAddress[A: Manifest](coinId: CoinId, address: String, category: Option[String], pageable: Pageable) = {
     transactionRepository.search(coinId.toString, Some(address), Some(address), pageable).map(page => {
       PageImpl(page.content.map(_.asJsonObject[A]), pageable, page.totalElement)
     })

@@ -16,7 +16,7 @@ case class TransactionWriter @Inject()(
 
   override protected def handle(data: KafkaTransactionInfo[Map[String, String]]): Unit = {
     CoinId.forName(data.coinId) match {
-      case Some(coinId) => txRepo.add(coinId.toString, data.id, data.data)
+      case Some(coinId) => txRepo.add(coinId.toString, data.id, data.data.toJsonString)
       case _ => warn(s"Unsupported CoinId ${data.coinId}")
     }
   }

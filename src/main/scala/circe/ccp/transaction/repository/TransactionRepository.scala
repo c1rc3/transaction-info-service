@@ -1,6 +1,7 @@
 package circe.ccp.transaction.repository
 
 import circe.ccp.transaction.domain.{Page, PageImpl, Pageable}
+import com.google.inject.Inject
 import com.google.inject.name.Named
 import com.twitter.util.Future
 import org.elasticsearch.index.query.QueryBuilders
@@ -22,7 +23,7 @@ trait TransactionRepository {
   ): Future[Page[String]]
 }
 
-case class ESTransactionRepository(
+case class ESTransactionRepository @Inject()(
   @Named("tx-es") es: ElasticsearchRepository
 ) extends TransactionRepository with Elasticsearchable {
 

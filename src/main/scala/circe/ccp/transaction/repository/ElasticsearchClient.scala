@@ -92,6 +92,7 @@ trait Elasticsearchable extends ESClient with Jsoning {
         case Some(v) => queryBuilder.should(QueryBuilders.termsQuery(key, v.split(","): _*))
         case _ => ;
       }
+      queryBuilder
     }
 
     def mustRange(key: String, gte: Option[_] = None, lte: Option[_] = None, gt: Option[_] = None, lt: Option[_] = None) = {
