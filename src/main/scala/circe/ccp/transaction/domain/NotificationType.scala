@@ -12,5 +12,5 @@ object NotificationType extends Enumeration {
   val SMS = Value(4, "SMS")
   val IN_APP = Value(5, "IN_APP")
 
-  def forName(s: String): Option[Value] = values.find(_.toString == s)
+  def forName(s: String): Option[Value] = values.find(_.toString == Option(s).getOrElse("").toUpperCase())
 }
